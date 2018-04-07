@@ -48,6 +48,14 @@ def create():
 
         return redirect(url_for('/admin'))
 
+@app.route('/detail/<service_id>')
+def detail(service_id):
+    service_to_detail = Service.objects.with_id(service_id)
+    if service_to_detail is None:
+        return "not found"
+    else:
+        return render_template('detail.html', service=service_to_detail)
+
 @app.route('/update_service/<service_id>', methods=['GET', 'POST'])
 def update(service_id):
     service_to_update = Service.objects.with_id(service_id)
