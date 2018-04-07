@@ -19,5 +19,5 @@ for i in range(100):
     image = 'https://www.pexels.com/photo/portrait-of-a-beautiful-woman-255349/' if gender == 0 else 'https://thumbs.dreamstime.com/z/fashion-man-beautiful-young-male-handsome-boy-outdoors-park-dressing-white-sweater-gray-trousers-exciting-64958203.jpg'
     new_service = Service(yob = randint(1995,2000), gender = randint(0,1), height = randint(145,168),
                         phone = fake.phone_number(), address = fake.address(), status = choice([True,False]),description = fake.sentence(nb_words=10, variable_nb_words=True, ext_word_list=None),
-                        measurements = [randint(70, 120), randint(70, 123), randint(70, 120)])
+                        measurements = [randint(70, 120), randint(70, 123), randint(70, 120)],image =image)
     new_service.save()
