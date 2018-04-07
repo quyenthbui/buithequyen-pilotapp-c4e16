@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Service Page</title>
+  </head>
+  <body>
+    <h1>Change information</h1>
+    <form action="{{url_for('update',service_id = service.id)}}" method="post">
+      <label>name</label>
+      <input type = "text" name ="name" value="{{service.name}}">
+
+      <label>yob</label>
+      <input type = "text" name ="yob" value="{{service.yob}}">
+
+      <label>address</label>
+      <input type = "text" name ="address" value="{{service.address}}">
+      <input type = "submit">
+    </form>
+  </body>
+</html>
