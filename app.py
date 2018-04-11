@@ -2,6 +2,8 @@ import mlab
 from flask import *
 from models.service import Service
 from models.user import User
+from models.order import Order
+import datetime
 
 app = Flask(__name__)
 app.secret_key = 'admin'
@@ -52,11 +54,12 @@ def login():
         username = form['username']
         password = form['password']
 
-        if username == 'admin' and password == 'admin':
-            session['logged_in'] = True
-            return redirect(url_for('servicepage'))
-        else:
+        user = User.objects.get(username = username, password = password)
+        if user is None:
             return 'Failed'
+        else:
+            session['user_id'] = str(user.id)
+            return redirect(url_for('servicepage'))
 
 @app.route('/delete/<service_id>')
 def delete(service_id):
@@ -65,7 +68,7 @@ def delete(service_id):
         return 'Not Found'
     else:
         service_to_delete.delete()
-        return redirect(url_for('/admin'))
+        return redirect(url_for('admin'))
 
 @app.route('/new-service', methods = ['GET','POST'])
 def create():
@@ -86,11 +89,11 @@ def create():
                             address = address, status = status, description = description, measurement = measurement)
         new_service.save()
 
-        return redirect(url_for('/admin'))
+        return redirect(url_for('admin'))
 
 @app.route('/detail/<service_id>')
 def detail(service_id):
-    if 'logged_in' in session:
+    if 'user_id' in session:
         service_to_detail = Service.objects.with_id(service_id)
         if service_to_detail is None:
             return "not found"
@@ -120,6 +123,11 @@ def update(service_id):
         service_to_modify.save()
         return redirect(url_for('admin'))
 
+@app.route('/order<serviceid>')
+def order(serviceid):
+    order = Order(user_id=session['user_id'], service_id=serviceid, time=datetime.datetime.now(), is_accepted=False)
+    order.save()
+    return 'request sent'
 
 if __name__ == '__main__':
   app.run(debug=True)

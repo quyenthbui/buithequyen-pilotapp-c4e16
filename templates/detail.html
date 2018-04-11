@@ -13,5 +13,6 @@
     <p><b>Address: </b>{{service.address}}</p>
     <p><b>Description: </b>{{service.description}}</p>
     <p><b>Measurement: </b>{{service.measurements[0]}} - {{service.measurements[1]}} - {{service.measurements[2]}}</p>
+    <a href="{{url_for('order',serviceid=service.id)}}">Ask for services</a>
   </body>
 </html>
