@@ -8,11 +8,12 @@
     <h1>Search</h1>
     <!-- source -->
     {% for service in all_services %}
-      {% if service.gender == 0 %}
+      <!-- {% if service.gender == 0 %}
         <img src="../static/image/female-profile.jpg" alt="NSFW">
       {% else %}
         <img src="../static/image/male-profile.jpg" alt="NSFW">
-      {% endif %}
+      {% endif %} -->
+      <img src="{{ service.image }}" width='200px' height='130px'>
       <p>Name: {{ service.name }}</p>
       <p>Yob: {{ service.yob }}</p>
       <p>Gender: {{ service.gender }}</p>

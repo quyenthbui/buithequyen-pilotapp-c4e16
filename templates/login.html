@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <h1>LOGIN</h1>
+    <form  method="post">
+      <label> username </label>
+      <input type="text" name="username" value="">
+      <hr>
+      <label> password </label>
+      <input type="password" name="password" value="">
+      <hr>
+      <input type="submit" >
+      <hr>
+      <a href="{{ url_for('signin') }}">Register new account</a>
+    </form>
+  </body>
+</html>

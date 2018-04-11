@@ -31,7 +31,7 @@
             <td>{{ service.address }}</td>
             <td>  {{ 'Free' if service.status else 'Busy' }}</td>
             <td>
-              <a href="#">Change</a>
+              <a href="{{ url_for('update', service_id=service.id) }}">Update</a>
               <a href="{{ url_for('delete', service_id=service.id) }}">Delete</a>
             </td>
           </tr>
