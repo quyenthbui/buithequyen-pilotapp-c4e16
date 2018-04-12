@@ -120,7 +120,7 @@ def update(service_id):
         service_to_update.status = request.form['status']
         service_to_update.description = request.form['description']
         service_to_update.measurement = request.form['measurement']
-        service_to_modify.save()
+        service_to_update.save()
         return redirect(url_for('admin'))
 
 @app.route('/order<serviceid>')
