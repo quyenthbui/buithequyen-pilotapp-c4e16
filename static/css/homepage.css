@@ -1,0 +1,23 @@
+.font-lobster {
+  font-family: 'Lobster', cursive;
+}
+
+.mb-300px {
+  margin-bottom: 300px;
+}
+
+.h-400px {
+  height: 400px;
+}
+
+.h-150px {
+  height: 150px;
+}
+
+.bg-male {
+  background-image: url('../image/female.jpg');
+}
+
+.bg-female {
+  background-image: url('../image/male.jpg');
+}

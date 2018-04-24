@@ -12,7 +12,7 @@ fake = Faker()
 mlab.connect()
 
 
-for i in range(100):
+for i in range(7):
     print('Saving Service', i + 1, '...........')
     gender = randint(0,1)
     name = fake.name_male() if gender==1 else fake.name_female()

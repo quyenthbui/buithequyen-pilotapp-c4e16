@@ -119,15 +119,25 @@ def update(service_id):
         service_to_update.address = request.form['address']
         service_to_update.status = request.form['status']
         service_to_update.description = request.form['description']
-        service_to_update.measurement = request.form['measurement']
+        service_to_update.measurement = request.form['measurements']
         service_to_update.save()
         return redirect(url_for('admin'))
 
-@app.route('/order<serviceid>')
+@app.route('/order/<serviceid>')
 def order(serviceid):
     order = Order(user_id=session['user_id'], service_id=serviceid, time=datetime.datetime.now(), is_accepted=False)
     order.save()
     return 'request sent'
+
+@app.route('/album')
+def album():
+    all_services = Service.objects()
+    return render_template('album.html', all_services = all_services)
+
+@app.route('/personal')
+def personal():
+    all_services = Service.objects()
+    return render_template('personal.html', all_services = all_services)
 
 if __name__ == '__main__':
   app.run(debug=True)

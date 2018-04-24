@@ -3,10 +3,14 @@
   <head>
     <meta charset="utf-8">
     <title>Mùa Đông Không Lạnh</title>
+    {% include "meta-data.html" %}
   </head>
   <body>
-    <h1>Mùa đông không lạnh</h1>
+    {% include "homepage/navigation.html" %}
+    {% include "homepage/carousel.html" %}
+    {% include "homepage/mission.html" %}
+    <!-- <h1>Mùa đông không lạnh</h1>
     <b>Anh là nam</b> <a href="{{ url_for('search', gender = 0) }}">Click vào em</a>
-    <b>Em là nữ</b> <a href="{{ url_for('search', gender = 1) }}">Click vào anh</a>
+    <b>Em là nữ</b> <a href="{{ url_for('search', gender = 1) }}">Click vào anh</a> -->
   </body>
 </html>
