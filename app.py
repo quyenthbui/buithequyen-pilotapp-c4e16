@@ -1,143 +1,184 @@
-import mlab
 from flask import *
-from models.service import Service
-from models.user import User
-from models.order import Order
-import datetime
-
-app = Flask(__name__)
-app.secret_key = 'admin'
-
+import mlab
+from random import choice
+import base64
+import os
+import gmail
+from io import BytesIO
+from  werkzeug.utils import secure_filename
+from models.classes import *
+from PIL import Image
 mlab.connect()
+app = Flask(__name__)
+app.secret_key = 'a-useless-key'
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if "user_id" in session:
+        loged_in = True
+    else:
+        loged_in = False
+    return render_template("index.html", loged_in= loged_in)
 
-@app.route('/search/<int:gender>')
-def search(gender):
-    all_services = Service.objects(gender=gender)
-    return render_template('search.html', all_services =all_services )
-
-@app.route('/signin', methods = ['GET','POST'])
-def signin():
+@app.route("/sign_up", methods= ['GET', 'POST'])
+def sign_up():
     if request.method == 'GET':
-        return render_template('signin.html')
+        return render_template('sign_up.html')
     elif request.method == 'POST':
         form = request.form
+        email = form['email']
         username = form['username']
         password = form['password']
-        email = form['email']
-        fullname = form['fullname']
-        new_user = User(username = username, password = password, email = email, fullname = fullname)
+        try:
+            new_user = User(email = email, username = username, password = password)
+            new_user.save()
+        except:
+            if list(User.objects(email = email)) != []:
+                return render_template("message.html", message = "email exist")
+            elif list(User.objects(username = username)) != []:
+                return render_template("message.html", message = "username exist")
+        session['user_id'] = str(new_user.id)
+        missions = Missions.objects()
+        for i in range(0,7):
+            mission= choice(missions)
+            new_user_mission = UserMission(user = new_user, mission = mission)
+            new_user_mission.save()
+        return redirect(url_for("user_profile"))
 
-        new_user.save()
-        return 'You have been registered for our website'
-
-@app.route('/admin')
-def admin():
-    services = Service.objects()
-    return render_template('admin.html',services = services)
-
-@app.route('/servicepage')
-def servicepage():
-    all_services = Service.objects()
-    return render_template('servicepage.html',all_services = all_services)
-
-@app.route('/login', methods = ['GET','POST'])
+@app.route('/login', methods =['GET', 'POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html')
-    elif request.method == 'POST':
+    elif request.method =='POST':
         form = request.form
         username = form['username']
         password = form['password']
 
-        user = User.objects.get(username = username, password = password)
-        if user is None:
-            return 'Failed'
+        user = User.objects(username__exact = username, password__exact= password).first()
+        if user is not None:
+            user = User.objects.get(username__exact = username, password__exact= password)
+            session["user_id"] = str(user.id)
+            return redirect(url_for("user_profile"))
         else:
-            session['user_id'] = str(user.id)
-            return redirect(url_for('servicepage'))
+            return render_template("message.html", message = "error login")
 
-@app.route('/delete/<service_id>')
-def delete(service_id):
-    service_to_delete = Service.objects.with_id(service_id)
-    if service_to_delete is None:
-        return 'Not Found'
+@app.route("/user_profile")
+def user_profile():
+    missions_completed = UserMission.objects(user= session['user_id'],completed= True)
+    if len(list(UserMission.objects(user = session['user_id'], completed=False))) !=0 :
+        missions_uncompleted = True
+        num_missions_unprocessed = 0
     else:
-        service_to_delete.delete()
-        return redirect(url_for('admin'))
+        missions_uncompleted = False
+        num_missions_unprocessed = len(list(UserMission.objects(user = session['user_id'], not_save= None)))
+    username = (User.objects.with_id(session['user_id'])).username
+    return render_template("user_profile.html", missions_completed = missions_completed,
+                                                username = username,
+                                                missions_uncompleted = missions_uncompleted,
+                                                num_missions_unprocessed = num_missions_unprocessed)
 
-@app.route('/new-service', methods = ['GET','POST'])
-def create():
+@app.route("/mission_detail")
+def mission_detail():
+    mission_detail = (UserMission.objects(user = session['user_id'],completed= False)).first()
+    session['done'] = False
+    return render_template("mission_detail.html",mission_detail = mission_detail)
+
+
+
+ALLOWED_EXTENSIONS = set([ 'jpg','png', 'jpeg' ])
+def allowed_filed(filename):
+    check_1 = "." in filename
+    check_2 = filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    return check_1 and check_2
+
+
+@app.route("/finish",methods= ['GET', 'POST'])
+def finish():
     if request.method == 'GET':
-        return render_template('new-service.html')
+        if not session['done']:
+            return render_template('finish.html')
+        else:
+            return render_template("message.html", message = "uploaded")
     elif request.method == 'POST':
         form = request.form
-        name = form['name']
-        yob = form['yob']
-        gender = form['gender']
-        height = form['height']
-        phone = form['phone']
-        address = form['address']
-        status = form['status']
-        description = form['description']
-        measurement = form['measurement']
-        new_service = Service(name = name,yob = yob, gender = gender, height = height, phone = phone,
-                            address = address, status = status, description = description, measurement = measurement)
-        new_service.save()
+        caption = form['caption']
 
-        return redirect(url_for('admin'))
+        image = request.files['image']
+        image_name = image.filename
+        if image  and allowed_filed(image_name):
 
-@app.route('/detail/<service_id>')
-def detail(service_id):
-    if 'user_id' in session:
-        service_to_detail = Service.objects.with_id(service_id)
-        if service_to_detail is None:
-            return "not found"
+            img = Image.open(image)
+            if "png" in image_name:
+                img = img.convert('RGB')
+            output = BytesIO()
+
+            img.save(output,format='JPEG',quality = 20)
+            image_data = output.getvalue()
+
+            image_bytes = base64.b64encode(image_data)
+            image_string = image_bytes.decode()
+
+            mission_updated = UserMission.objects(user = session["user_id"], completed = False).first()
+            mission_updated.update(set__caption = caption, set__image = image_string, completed = True)
+            session['done'] = True
+
+            if UserMission.objects(user = session["user_id"], completed = False).first() != None:
+                return redirect(url_for("share",id_mission = str(mission_updated.id)))
+            else:
+                return redirect(url_for("congratulation"))
         else:
-            return render_template('detail.html', service=service_to_detail)
-    else:
-        return redirect(url_for('login'))
+            return render_template("message.html", message = "file not allowed")
 
+@app.route("/share/<id_mission>")
+def share(id_mission):
+    mission_share = UserMission.objects.with_id(id_mission)
+    username = mission_share.user.username
+    caption = mission_share.caption
+    image = mission_share.image
+    return render_template("share.html",username = username, caption = caption, image = image, id_mission= id_mission)
 
-@app.route('/update/<service_id>', methods=['GET', 'POST'])
-def update(service_id):
-    service_to_update = Service.objects.with_id(service_id)
-    if service_to_update is None:
-        return "Not Found"
-    if request.method == 'GET':
-        return render_template("update.html", service=service_to_update)
-    elif request.method == 'POST':
-        service_to_update.name = request.form['name']
-        service_to_update.gender = request.form['gender']
-        service_to_update.yob = int(request.form['yob'])
-        service_to_update.phone = request.form['phone']
-        service_to_update.height = request.form['height']
-        service_to_update.address = request.form['address']
-        service_to_update.status = request.form['status']
-        service_to_update.description = request.form['description']
-        service_to_update.measurement = request.form['measurements']
-        service_to_update.save()
-        return redirect(url_for('admin'))
+@app.route('/congratulation')
+def congratulation():
+    user = User.objects.with_id(session["user_id"])
+    return render_template("congratulation.html",user = user)
 
-@app.route('/order/<serviceid>')
-def order(serviceid):
-    order = Order(user_id=session['user_id'], service_id=serviceid, time=datetime.datetime.now(), is_accepted=False)
-    order.save()
-    return 'request sent'
+@app.route('/continue_challenge')
+def continue_challenge():
+    missions = Missions.objects()
+    user = User.objects.with_id(session['user_id'])
+    for i in range(0,7):
+        mission= choice(missions)
+        new_user_mission = UserMission(user =user, mission =mission)
+        new_user_mission.save()
+    return render_template("message.html", message = "continue challenge")
 
-@app.route('/album')
-def album():
-    all_services = Service.objects()
-    return render_template('album.html', all_services = all_services)
+@app.route("/save_album/<int:save>")
+def save_album(save):
+    unsave_missions = UserMission.objects(user =session['user_id'],completed = True, saved = False)
+    if save == 0:
+        unsave_missions.update(set__not_save= True)
+    elif save == 1:
+        unsave_missions.update(set__not_save= False)
+    save_missions = UserMission.objects(user =session['user_id'],completed = True, saved = False, not_save = False)
+    user = User.objects.with_id(session['user_id'])
 
-@app.route('/personal')
-def personal():
-    all_services = Service.objects()
-    return render_template('personal.html', all_services = all_services)
+    if list(save_missions) != [] :
+        new_album = Library(user = user,user_missions = save_missions)
+        new_album.save()
+        save_missions.update(set__saved=True)
+    return render_template("message.html", message = "processed")
+
+@app.route('/library')
+def library():
+    all_albums = Library.objects()
+    return render_template("library.html", all_albums= all_albums)
+
+@app.route('/logout')
+def logout():
+    if 'user_id' in session:
+        del session['user_id']
+        return redirect(url_for("index"))
 
 if __name__ == '__main__':
   app.run(debug=True)
