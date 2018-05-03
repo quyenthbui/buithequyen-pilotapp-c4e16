@@ -2,40 +2,35 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Thông báo</title>
+    <title></title>
+    <link rel="stylesheet" href="./static/css/message.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.11/css/all.css" integrity="sha384-p2jx59pefphTFIpeqCcISO9MdVfIm4pNnsL08A6v5vaQc4owkQqxMV8kg4Yvhaw/" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+
+
   </head>
-  <body>
-    {% if message == "email exist"%}
-    <p>Email đã được sử dụng</p>
-    <a href="{{url_for("sign_up")}}">Đăng ký email khác</a>
-
-    {% elif message == "username exist"%}
-    <p>Username đã được sử dụng</p>
-    <a href="{{url_for("sign_up")}}">Đăng ký username khác</a>
-
-    {% elif message == "error login"%}
-    <p>Username hoặc password sai</p>
-    <a href="{{url_for("login")}}">Đăng nhập lại</a>
-    <a href="{{url_for("sign_up")}}">Đăng ký nếu bạn chưa có tài khoản</a>
-
-    {% elif message == "uploaded"%}
-    <p>Nhiệm vụ đã hoàn thành</p>
-    <a href="{{url_for("user_profile")}}">Trở về trang cá nhân để nhận nhiệm vụ mới</a>
-
-    {% elif message == "file not allowed"%}
-    <p>Định dạng ảnh không phù hợp</p>
-    <a href="{{url_for("finish")}}">Sử dụng ảnh khác</a>
-
-    {% elif message == "continue challenge"%}
-    <p>Nhiệm vụ mới đã được giao</p>
-    <a href="{{url_for("user_profile")}}">Trở về trang cá nhân để nhận nhiệm vụ mới</a>
-
-    {% elif message == "processed"%}
-    <p>Đã xử lý xong album</p>
-    <a href="{{url_for("user_profile")}}">Trở về trang cá nhân </a>
+<!-- hết phần head -->
+<body>
 
 
-    {% endif%}
+<div class="container h-800px bg-green d-flex align-items-center justify-content-center ">
+  <div class="container h-400px bg-white d-flex justify-content-center align-items-center">
+    <div  class=" d-flex h-300px w-25 text-center align-items-center  border border-success border-top-0 border-bottom-0 border-left-0 "> <i class="text-green fas fa-trophy font-size-40px"></i> <span class="text-green font-size-30px">Chúc mừng bạn đã hoàn thành nhiệm vụ</span> </div>
+    <div class="container d-flex h-300px w-75 justify-content-end flex-wrap ">
+      <div class=" h-50px w-100 text-center"><p class="font-size-30px">Cảm ơn bạn đã trở thành một người hùng</p></div>
+      <div class="h-50px w-100 "><i class="fas fa-camera text-green"></i> <span class="text-green">Up ảnh</span> </div>
+      <div class="h-100px w-100"><p class="text-green">Viết cảm nghĩ của bạn vào đây</p></div>
+      <div id='rcorners1' class="  h-50px w-25 text-center"> <p>Gửi</p> </div>
+    </div>
+    </div>
 
-  </body>
+  </div>
+  </div>
+</div>
+</body>
 </html>
